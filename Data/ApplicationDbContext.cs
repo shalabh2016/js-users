@@ -9,7 +9,7 @@ namespace JsUsers.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<UserModel> userModels { get; set; }
+        public DbSet<UserModel> UserModels { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=jsusers.db");
 
