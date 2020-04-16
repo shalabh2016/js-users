@@ -13,7 +13,7 @@ namespace JsUsers.Services
 
         }
 
-        public async Task<dynamic> SaveFromHttpRequestAsync(List<UserModel> userModels)
+        public async Task<dynamic> SaveFromHttpRequestAsync()
         {
             return new NotImplementedException("NotImplemented");
         }
@@ -31,6 +31,11 @@ namespace JsUsers.Services
         public async Task<dynamic> UpdateAsync(UserModel userModel)
         {
             return new NotImplementedException("NotImplemented");
+        }
+
+        public List<string> GetStatusTypes()
+        {
+            return new List<string> { "Locked", "Active" };
         }
     }
 }

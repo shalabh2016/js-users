@@ -1,0 +1,87 @@
+﻿<nav aria-label="Page navigation">
+    <div>
+        @CurrentPageNo
+    </div>
+    <ul class="pagination justify-content-center">
+
+        @if (CurrentPageNo > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="Previous" tabindex="-1">Previous</a>
+            </li>
+        }
+        @*@for (var i = 0; i < calculateCeil(); i++)
+            {
+                var a = i;
+                <li class="page-item"><a class="page-link" @onclick="@(() => ToPageNumber(a))">@i</a></li>
+            }*@
+        @if (calculateCeil() >= 0)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="Next">Next</a>
+            </li>
+        }
+
+
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public int Skip { get; set; } = 0;
+
+    [Parameter]
+    public int Limit { get; set; } = 1;
+
+    [Parameter]
+    public int Count { get; set; } = 0;
+
+    [Parameter]
+    public int PerPage { get; set; } = 10;
+
+    [Parameter]
+    public int CurrentPageNo { get; set; } = 1;
+
+    [Parameter]
+    public Action<int, int> LoadMore { get; set; }
+
+    [Parameter]
+    public Action<int> ToPageNumberPage { get; set; }
+
+    [Parameter]
+    public Action<int> NextPage { get; set; }
+
+    [Parameter]
+    public Action<int> PreviousPage { get; set; }
+
+    private decimal calculateCeil()
+    {
+        decimal outDec = 0.0M;
+        Decimal.TryParse((Count / PerPage).ToString(), out outDec);
+        return Math.Ceiling(outDec);
+    }
+
+    private void ToPageNumber(int pageNumber)
+    {
+        CurrentPageNo = pageNumber;
+        ToPageNumberPage(CurrentPageNo);
+    }
+
+    private void Next()
+    {
+        CurrentPageNo++;
+        NextPage(CurrentPageNo);
+    }
+
+    private void Previous()
+    {
+        CurrentPageNo--;
+        PreviousPage(CurrentPageNo);
+    }
+
+    public void ToPageNumberFromParent(int PageNo)
+    {
+        CurrentPageNo = PageNo;
+        ToPageNumberPage(CurrentPageNo);
+    }
+}
