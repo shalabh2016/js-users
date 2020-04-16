@@ -1,0 +1,28 @@
+﻿@page "/New"
+@page "/Edit/{Id:int}"
+@inject NavigationManager NavigationManager
+
+<h3>UserComponent</h3>
+<p>@isEdit</p>
+@if (isEdit)
+{
+    <p>@Id</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private bool isEdit { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var split in (NavigationManager.Uri).Split("/"))
+        {
+            if (split == "Edit")
+            {
+                isEdit = true;
+                StateHasChanged();
+            }
+        }
+    }
+}
