@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/Home/{PN:int}"
 @inject JsUsers.Services.UserDataService _userDataService
 @inject NavigationManager _navigationManager
 @inject IToastService toastService
@@ -14,9 +15,10 @@
 <table class="table text-center justify-content-center">
     <thead>
         <tr class="">
-            <th scope="col">#Id</th>
+            <th scope="col">Id</th>
             <th scope="col">First Name</th>
             <th scope="col">Last Name</th>
+            <th scope="col">Created At</th>
             <th scope="col">Status</th>
             <th scope="col">Change Status</th>
             <th scope="col">Edit</th>
@@ -25,17 +27,18 @@
     <tbody>
         @foreach (var user in UserList)
         {
-            <tr>
-                <th scope="row">@((MarkupString)GetElemForLocked(user, user.Id.ToString()))</th>
-                <td>@((MarkupString)GetElemForLocked(user, user.FirstName))</td>
-                <td>@((MarkupString)GetElemForLocked(user, user.LastName))</td>
-                <td style="text-align: center" class=@((user.Status.ToLower() == "locked")? "table-danger":"table-success")>@user.Status</td>
-                <td style="text-align: center">
-                    <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(!LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-toggle="tooltip" data-placement="top" title="Click to Change"><i class="fa fa-check" style=@((user.Status.ToLower() == "locked")? "color: grey" : "color: green") aria-hidden="true"></i></button>
-                    | <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-placement="top" title="Clck to Change."><i class="fa fa-lock" style=@((user.Status.ToLower() == "locked")? "color: red" : "color: grey") aria-hidden="true"></i></button>
-                </td>
-                <td><button type="button" class="btn btn-outline-secondary" @onclick="@(() => GoTo(user.Id))">Edit</button></td>
-            </tr>
+        <tr>
+            <th scope="row">@((MarkupString)GetElemForLocked(user, user.Id.ToString()))</th>
+            <td>@((MarkupString)GetElemForLocked(user, user.FirstName))</td>
+            <td>@((MarkupString)GetElemForLocked(user, user.LastName))</td>
+            <td>@user.CreatedAt</td>
+            <td style="text-align: center" class=@((user.Status.ToLower() == "locked")? "table-danger":"table-success")>@user.Status</td>
+            <td style="text-align: center">
+                <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(!LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-toggle="tooltip" data-placement="top" title="Click to Change"><i class="fa fa-check" style=@((user.Status.ToLower() == "locked")? "color: grey" : "color: green") aria-hidden="true"></i></button>
+                | <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-placement="top" title="Clck to Change."><i class="fa fa-lock" style=@((user.Status.ToLower() == "locked")? "color: red" : "color: grey") aria-hidden="true"></i></button>
+            </td>
+            <td><button type="button" class="btn btn-outline-secondary" @onclick="@(() => GoTo(user.Id, _paginationRef.CurrentPageNo))">Edit</button></td>
+        </tr>
         }
     </tbody>
 </table>
@@ -43,6 +46,9 @@
 
 
 @code{
+    [Parameter]
+    public int PN { get; set; }
+    public bool IsNavigatedBack { get; set; } = false;
     private JsUsers.Pages.HelperComponents.PaginationComponent _paginationRef;
     private List<JsUsers.Models.UserModel> UserList { get; set; } = new List<Models.UserModel>();
 
@@ -50,7 +56,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetData(1, 10);
+        foreach (var split in _navigationManager.Uri.Split("/"))
+        {
+            if (split == "Home")
+            {
+                IsNavigatedBack = true;
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (IsNavigatedBack)
+            {
+                _paginationRef.ToPageNumberFromParent((int)((PN > 1) ? (PN) : 1));
+            }
+            else
+            {
+                IsNavigatedBack = false;
+                await GetData(1, 10);
+            }
+
+            StateHasChanged();
+        }
     }
 
     private bool LockedOrActive(string Status)
@@ -71,9 +101,9 @@
 
     }
 
-    private void GoTo(int Id)
+    private void GoTo(int Id, int CurrentPageNumber)
     {
-        _navigationManager.NavigateTo($"/Edit/{Id}");
+        _navigationManager.NavigateTo($"/Edit/{Id}/{CurrentPageNumber}");
     }
 
     private async void ChangeStatus(int id)

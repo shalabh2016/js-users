@@ -81,6 +81,33 @@ namespace JsUsers.Services
             }
         }
 
+        public async Task<dynamic> NewAsync(UserModel userModel)
+        {
+            using (var users = new ApplicationDbContext())
+            {
+                try
+                {
+                    var isContains = await users.UserModels.Where(u => u.Id == userModel.Id).FirstOrDefaultAsync();
+
+                    if (isContains != null)
+                    {
+                        return new ResponseModel { IsError = true, Message = "The user is already present." };
+                    }
+
+                    userModel.CreatedAt = DateTime.UtcNow;
+                    userModel.UpdatedAt = userModel.CreatedAt;
+
+                    await users.UserModels.AddAsync(userModel);
+                    await users.SaveChangesAsync();
+                    return new ResponseModel { IsError = false, Message = "Successfully added the User." };
+                }
+                catch (Exception e)
+                {
+                    return new ResponseModel { IsError = true, Message = e.Message };
+                }
+            }
+        }
+
         public async Task<List<UserModel>> GetAsync(int? PageNumber, int? PerPage)
         {
             var users = await PaginationHelper<UserModel>.CreateAsync(
@@ -97,6 +124,16 @@ namespace JsUsers.Services
 
             return users;
 
+        }
+
+        public async Task<UserModel> GetUserWithIdAsync(int Id)
+        {
+            var user = await _applicationDbContext.UserModels.Where(u => u.Id == Id).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                return user;
+            }
+            return new UserModel();
         }
 
         public async Task<ResponseModel> UpdateStatusAsync(int Id)
@@ -126,14 +163,22 @@ namespace JsUsers.Services
             }
         }
 
-        public async Task<dynamic> NewAsync(UserModel userModel)
+        public async Task<ResponseModel> UpdateAsync(UserModel userModel)
         {
-            return new NotImplementedException("NotImplemented");
-        }
-
-        public async Task<dynamic> UpdateAsync(UserModel userModel)
-        {
-            return new NotImplementedException("NotImplemented");
+            using (var users = new ApplicationDbContext())
+            {
+                try
+                {
+                    userModel.UpdatedAt = DateTime.UtcNow;
+                    users.UserModels.Update(userModel);
+                    await users.SaveChangesAsync();
+                    return new ResponseModel { IsError = false, Message = "Successfully updated the User." };
+                }
+                catch (Exception e)
+                {
+                    return new ResponseModel { IsError = true, Message = e.Message };
+                }
+            }
         }
 
         public List<string> GetStatusTypes()
