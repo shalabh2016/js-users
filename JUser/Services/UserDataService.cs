@@ -158,6 +158,7 @@ namespace JsUsers.Services
         /// <returns>Response -> A Single User or UserModel data.</returns>
         public async Task<UserModel> GetUserWithIdAsync(int Id)
         {
+            _applicationDbContext.ChangeTracker.QueryTrackingBehavior = Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
             var user = await _applicationDbContext.UserModels.Where(u => u.Id == Id).FirstOrDefaultAsync();
             if (user != null)
             {
