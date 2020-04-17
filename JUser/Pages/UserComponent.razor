@@ -20,6 +20,7 @@ else
 }
 <hr />
 <EditForm Model="@_userModel" OnValidSubmit="HandleValidSubmit">
+    @*For Validation*@
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="form-group form-row">
@@ -53,6 +54,7 @@ else
 </EditForm>
 
 @code {
+    //UserId for Edit
     [Parameter]
     public int Id { get; set; }
 
@@ -67,7 +69,6 @@ else
     {
         NavigationManager.LocationChanged += HandleLocationChanged;
         await CheckEditUri();
-
     }
 
     private void GoBack(int number)
@@ -87,6 +88,7 @@ else
         NavigationManager.LocationChanged -= HandleLocationChanged;
     }
 
+    //Check whether Url is for Edit or Not.
     private async Task CheckEditUri()
     {
         isEdit = false;
@@ -95,14 +97,18 @@ else
             if (split == "Edit")
             {
                 isEdit = true;
+
+                //If edit then load user to edit.
                 _userModel = await userDataService.GetUserWithIdAsync(Id);
             }
         }
         StateHasChanged();
     }
 
+    //Validation and Submit data to backend for saving.
     private async void HandleValidSubmit()
     {
+        //If User is edited.
         if (isEdit)
         {
             toastService.ShowInfo("Updating the user.");
@@ -116,6 +122,8 @@ else
                 toastService.ShowSuccess(result.Message);
             }
         }
+
+        //If New user is added.
         if (!isEdit)
         {
             toastService.ShowInfo("Adding the user.");

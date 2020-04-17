@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using JsUsers.Models;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -38,6 +37,7 @@ namespace JUserTest.Services
             });
         }
 
+        //Mocking Loading data from Api.
         [Test]
         public void SaveFromHttpRequestAsync()
         {
@@ -58,6 +58,7 @@ namespace JUserTest.Services
             }
         }
 
+        //Mocking New entry to database.
         [Test]
         public void NewAsync()
         {
@@ -80,6 +81,7 @@ namespace JUserTest.Services
             }
         }
 
+        //Mocking Getting User with Id.
         [TestCase(75)]
         [TestCase(85)]
         public void GetUserWithIdAsync(int Id)
@@ -88,7 +90,7 @@ namespace JUserTest.Services
             Assert.AreEqual(user.Id, Id);
         }
 
-
+        //Mocking UpdateStatusAsync
         [TestCase(75)]
         [TestCase(85)]
         public void UpdateStatusAsync(int Id)
@@ -96,7 +98,7 @@ namespace JUserTest.Services
             try
             {
                 var user = UserModelForTest.Where(u => u.Id == Id).FirstOrDefault();
-                if(user.Status == "locked")
+                if (user.Status == "locked")
                 {
                     user.Status = "active";
                 }
@@ -120,6 +122,7 @@ namespace JUserTest.Services
             }
         }
 
+        //Mocking update of User.
         [TestCase(75)]
         [TestCase(85)]
         public void UpdateAsync(int Id)
@@ -139,11 +142,6 @@ namespace JUserTest.Services
                 Assert.Fail("User update failed.");
             }
 
-        }
-
-        public List<string> GetStatusTypes()
-        {
-            return new List<string> { "locked", "active" };
         }
     }
 }

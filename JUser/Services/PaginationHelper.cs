@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace JsUsers.Services
 {
+    //Pagination Helper to Paginate from Database. Used with UserDataService.
     public class PaginationHelper<T> : List<T>
     {
         public int PageIndex { get; private set; }

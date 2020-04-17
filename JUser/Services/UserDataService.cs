@@ -24,8 +24,6 @@ namespace JsUsers.Services
             _applicationDbContext = applicationDbContext;
         }
 
-
-
         /// <summary>
         /// This method saves data from: http://js-assessment-backend.herokuapp.com/users.json
         /// Adds to SqLite Database.
@@ -66,7 +64,7 @@ namespace JsUsers.Services
                                 }
                             }
                         }
-                        
+
                         //Adds the updated list to database.
                         await users.UserModels.AddRangeAsync(tempList);
                         await users.SaveChangesAsync();

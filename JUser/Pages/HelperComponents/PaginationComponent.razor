@@ -22,9 +22,12 @@
     [Parameter]
     public int CurrentPageNo { get; set; } = 1;
 
+    //This enables/disables Next button.
+    //When the list doesn't have more data, it hides button.
     [Parameter]
     public bool IsNextAvailable { get; set; } = false;
 
+    //Referenced of Parent Methods
     [Parameter]
     public Action<int> ToPageNumberPage { get; set; }
 
@@ -43,18 +46,22 @@
     private void Next()
     {
         CurrentPageNo++;
+        //Parent method
         NextPage(CurrentPageNo);
     }
 
     private void Previous()
     {
         CurrentPageNo--;
+        //Parent method
         PreviousPage(CurrentPageNo);
     }
 
+    //This is called from Parent component.
     public void ToPageNumberFromParent(int PageNo)
     {
         CurrentPageNo = PageNo;
+        //Parent method
         ToPageNumberPage(CurrentPageNo);
     }
 }

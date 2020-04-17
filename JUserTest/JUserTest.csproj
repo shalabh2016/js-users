@@ -11,15 +11,14 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="JsUsers">
-      <HintPath>..\assessment\obj\Debug\netcoreapp3.1\JsUsers.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 	<ItemGroup>
 		<Content Include="MockJson\*\*.*">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="JsUsers">
+	    <HintPath>..\JUser\bin\Debug\netcoreapp3.1\JsUsers.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 </Project>
