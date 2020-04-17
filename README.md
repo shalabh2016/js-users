@@ -1,4 +1,11 @@
-# JavaScript/Front-end Developer - User List
+# JavaScript/Front-end Developer - User List - Backend Also Included
+
+## Description Project
+
+- Created with .Net Core 3.1 with Blazor Server Configuration
+- .Net Installation and Docs are available on: https://dotnet.microsoft.com/download
+- SqLite is used.
+- `dotnet run` is used to  run the project, and `dotnet restore` must be run if run for the first time.
 
 ## Instructions
 
