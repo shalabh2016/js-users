@@ -1,0 +1,60 @@
+﻿<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-end align-content-end">
+
+        @if (CurrentPageNo > 1)
+        {
+            <li class="page-item p-1">
+                <a class="btn btn-outline-primary" @onclick="Previous" tabindex="-1">Previous</a>
+            </li>
+        }
+        @if (IsNextAvailable)
+        {
+            <li class="page-item p-1">
+                <a class="btn btn-outline-secondary" @onclick="Next">Next</a>
+            </li>
+        }
+
+
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public int CurrentPageNo { get; set; } = 1;
+
+    [Parameter]
+    public bool IsNextAvailable { get; set; } = false;
+
+    [Parameter]
+    public Action<int> ToPageNumberPage { get; set; }
+
+    [Parameter]
+    public Action<int> NextPage { get; set; }
+
+    [Parameter]
+    public Action<int> PreviousPage { get; set; }
+
+    private async Task ToPageNumber(int pageNumber)
+    {
+        CurrentPageNo = pageNumber;
+        ToPageNumberPage(CurrentPageNo);
+    }
+
+    private void Next()
+    {
+        CurrentPageNo++;
+        NextPage(CurrentPageNo);
+    }
+
+    private void Previous()
+    {
+        CurrentPageNo--;
+        PreviousPage(CurrentPageNo);
+    }
+
+    public void ToPageNumberFromParent(int PageNo)
+    {
+        CurrentPageNo = PageNo;
+        ToPageNumberPage(CurrentPageNo);
+    }
+}

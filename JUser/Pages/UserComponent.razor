@@ -1,0 +1,133 @@
+﻿@page "/New"
+@page "/Edit/{Id:int}/{CurrentPageNumber:int}"
+@inject JsUsers.Services.UserDataService userDataService
+@inject NavigationManager NavigationManager
+@inject IToastService toastService
+
+@if (isEdit)
+{
+    <div class="row">
+        <div class="col-5 align-content-start"><h5>Edit User with Id: @Id</h5></div>
+        <div class="col-7 justify-content-end align-content-end float-right text-right">
+            <button type="button" class="btn btn-info align-self-end" @onclick="@(() => GoBack(CurrentPageNumber))">Back</button>
+        </div>
+    </div>
+}
+else
+{
+    <h3>New User</h3>
+
+}
+<hr />
+<EditForm Model="@_userModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group form-row">
+        <div class="col">
+            <InputText id="firstname" class="form-control" @bind-Value="_userModel.FirstName" placeholder="First Name" />
+        </div>
+        <div class="col">
+            <InputText id="lastname" class="form-control" @bind-Value="_userModel.LastName" placeholder="Last Name" />
+        </div>
+    </div>
+    <div class="form-group">
+        <InputSelect class="custom-select my-1 mr-sm-2" @bind-Value="_userModel.Status">
+            <option value="0">--Select a Status--</option>
+            @foreach (var status in userDataService.GetStatusTypes())
+            {
+                <option value="@status">@status</option>
+            }
+        </InputSelect>
+    </div>
+    <hr />
+    @if (isEdit)
+    {
+        <div class="form-group">
+            <p>Created At: @_userModel.CreatedAt</p>
+            <p>Last Updated At: @_userModel.UpdatedAt</p>
+        </div>
+    }
+    <div class="form-group">
+        <button class="btn btn-success" type="submit">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public int CurrentPageNumber { get; set; }
+
+    private bool isEdit { get; set; } = false;
+
+    private JsUsers.Models.UserModel _userModel { get; set; } = new Models.UserModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        await CheckEditUri();
+
+    }
+
+    private void GoBack(int number)
+    {
+        NavigationManager.NavigateTo($"/Home/{number}");
+    }
+
+    private async void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        await CheckEditUri();
+        _userModel = new Models.UserModel();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+
+    private async Task CheckEditUri()
+    {
+        isEdit = false;
+        foreach (var split in (NavigationManager.Uri).Split("/"))
+        {
+            if (split == "Edit")
+            {
+                isEdit = true;
+                _userModel = await userDataService.GetUserWithIdAsync(Id);
+            }
+        }
+        StateHasChanged();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if (isEdit)
+        {
+            toastService.ShowInfo("Updating the user.");
+            var result = await userDataService.UpdateAsync(_userModel);
+            if (result.IsError)
+            {
+                toastService.ShowError(result.Message);
+            }
+            else if (!result.IsError)
+            {
+                toastService.ShowSuccess(result.Message);
+            }
+        }
+        if (!isEdit)
+        {
+            toastService.ShowInfo("Adding the user.");
+            var result = await userDataService.NewAsync(_userModel);
+            if (result.IsError)
+            {
+                toastService.ShowError(result.Message);
+            }
+            else if (!result.IsError)
+            {
+                toastService.ShowSuccess(result.Message);
+            }
+        }
+    }
+}

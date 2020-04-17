@@ -1,0 +1,159 @@
+﻿@page "/"
+@page "/Home/{PN:int}"
+@inject JsUsers.Services.UserDataService _userDataService
+@inject NavigationManager _navigationManager
+@inject IToastService toastService
+
+<div class="row">
+    <div class="col-3 align-content-start"><h1>Users</h1></div>
+    <div class="col-9">
+        <JsUsers.Pages.HelperComponents.PaginationComponent @ref="@_paginationRef" IsNextAvailable="@IsNextAvailable" PreviousPage="PreviousPage" NextPage="NextPage" ToPageNumberPage="ToPageNumberPage" />
+    </div>
+</div>
+
+<hr />
+<table class="table text-center justify-content-center">
+    <thead>
+        <tr class="">
+            <th scope="col">Id</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Status</th>
+            <th scope="col">Change Status</th>
+            <th scope="col">Edit</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in UserList)
+        {
+        <tr>
+            <th scope="row">@((MarkupString)GetElemForLocked(user, user.Id.ToString()))</th>
+            <td>@((MarkupString)GetElemForLocked(user, user.FirstName))</td>
+            <td>@((MarkupString)GetElemForLocked(user, user.LastName))</td>
+            <td>@user.CreatedAt</td>
+            <td style="text-align: center" class=@((user.Status.ToLower() == "locked")? "table-danger":"table-success")>@user.Status</td>
+            <td style="text-align: center">
+                <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(!LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-toggle="tooltip" data-placement="top" title="Click to Change"><i class="fa fa-check" style=@((user.Status.ToLower() == "locked")? "color: grey" : "color: green") aria-hidden="true"></i></button>
+                | <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-placement="top" title="Clck to Change."><i class="fa fa-lock" style=@((user.Status.ToLower() == "locked")? "color: red" : "color: grey") aria-hidden="true"></i></button>
+            </td>
+            <td><button type="button" class="btn btn-outline-secondary" @onclick="@(() => GoTo(user.Id, _paginationRef.CurrentPageNo))">Edit</button></td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@code{
+    [Parameter]
+    public int PN { get; set; }
+    public bool IsNavigatedBack { get; set; } = false;
+    private JsUsers.Pages.HelperComponents.PaginationComponent _paginationRef;
+    private List<JsUsers.Models.UserModel> UserList { get; set; } = new List<Models.UserModel>();
+
+    private bool IsNextAvailable { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var split in _navigationManager.Uri.Split("/"))
+        {
+            if (split == "Home")
+            {
+                IsNavigatedBack = true;
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (IsNavigatedBack)
+            {
+                _paginationRef.ToPageNumberFromParent((int)((PN > 1) ? (PN) : 1));
+            }
+            else
+            {
+                IsNavigatedBack = false;
+                await GetData(1, 10);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private bool LockedOrActive(string Status)
+    {
+        return (Status.ToString() == "locked" ? true : false);
+    }
+
+
+    private string GetElemForLocked(JsUsers.Models.UserModel user, string elem)
+    {
+        var isLocked = LockedOrActive(user.Status);
+        if (isLocked)
+        {
+            return $"<s style='color:red'>{elem}</s>";
+        }
+
+        return elem;
+
+    }
+
+    private void GoTo(int Id, int CurrentPageNumber)
+    {
+        _navigationManager.NavigateTo($"/Edit/{Id}/{CurrentPageNumber}");
+    }
+
+    private async void ChangeStatus(int id)
+    {
+        toastService.ShowInfo("Changing Status");
+        var result = await _userDataService.UpdateStatusAsync(id);
+
+        if (result.IsError)
+        {
+            toastService.ShowError(result.Message);
+        }
+        else if (!result.IsError)
+        {
+            toastService.ShowSuccess(result.Message);
+        }
+        _paginationRef.ToPageNumberFromParent((int)((_paginationRef.CurrentPageNo > 1) ? (_paginationRef.CurrentPageNo) : 1));
+        StateHasChanged();
+    }
+
+    private async Task GetData(int? PageNumber, int? PerPage)
+    {
+        UserList = await _userDataService.GetAsync(PageNumber ?? 1, PerPage ?? 10);
+        if (UserList == null || UserList.Count == 0)
+        {
+            IsNextAvailable = false;
+            _paginationRef.ToPageNumberFromParent((int)((PageNumber > 1) ? PageNumber - 1 : 1));
+        }
+        StateHasChanged();
+    }
+
+    public async void NextPage(int CurrentPageNo)
+    {
+        await GetData(CurrentPageNo, 10);
+        StateHasChanged();
+    }
+
+    public async void PreviousPage(int CurrentPageNo)
+    {
+        if (!IsNextAvailable)
+        {
+            IsNextAvailable = true;
+        }
+
+        await GetData(CurrentPageNo, 10);
+        StateHasChanged();
+    }
+
+    public async void ToPageNumberPage(int CurrentPageNo)
+    {
+        await GetData(CurrentPageNo, 10);
+        StateHasChanged();
+    }
+}
