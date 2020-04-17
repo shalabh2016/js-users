@@ -1,24 +1,16 @@
 ﻿<nav aria-label="Page navigation">
-    <div>
-        @CurrentPageNo
-    </div>
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-end align-content-end">
 
         @if (CurrentPageNo > 1)
         {
-            <li class="page-item">
-                <a class="page-link" @onclick="Previous" tabindex="-1">Previous</a>
+            <li class="page-item p-1">
+                <a class="btn btn-outline-primary" @onclick="Previous" tabindex="-1">Previous</a>
             </li>
         }
-        @*@for (var i = 0; i < calculateCeil(); i++)
-            {
-                var a = i;
-                <li class="page-item"><a class="page-link" @onclick="@(() => ToPageNumber(a))">@i</a></li>
-            }*@
-        @if (calculateCeil() >= 0)
+        @if (IsNextAvailable)
         {
-            <li class="page-item">
-                <a class="page-link" @onclick="Next">Next</a>
+            <li class="page-item p-1">
+                <a class="btn btn-outline-secondary" @onclick="Next">Next</a>
             </li>
         }
 
@@ -28,22 +20,10 @@
 
 @code {
     [Parameter]
-    public int Skip { get; set; } = 0;
-
-    [Parameter]
-    public int Limit { get; set; } = 1;
-
-    [Parameter]
-    public int Count { get; set; } = 0;
-
-    [Parameter]
-    public int PerPage { get; set; } = 10;
-
-    [Parameter]
     public int CurrentPageNo { get; set; } = 1;
 
     [Parameter]
-    public Action<int, int> LoadMore { get; set; }
+    public bool IsNextAvailable { get; set; } = false;
 
     [Parameter]
     public Action<int> ToPageNumberPage { get; set; }
@@ -54,14 +34,7 @@
     [Parameter]
     public Action<int> PreviousPage { get; set; }
 
-    private decimal calculateCeil()
-    {
-        decimal outDec = 0.0M;
-        Decimal.TryParse((Count / PerPage).ToString(), out outDec);
-        return Math.Ceiling(outDec);
-    }
-
-    private void ToPageNumber(int pageNumber)
+    private async Task ToPageNumber(int pageNumber)
     {
         CurrentPageNo = pageNumber;
         ToPageNumberPage(CurrentPageNo);

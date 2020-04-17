@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazored.Toast;
 using JsUsers.Data;
 using JsUsers.Services;
 using Microsoft.AspNetCore.Builder;
@@ -32,7 +33,7 @@ namespace JsUsers
             services.AddServerSideBlazor();
             services.AddTransient<ApplicationDbContext>();
             services.AddScoped<UserDataService>();
-
+            services.AddBlazoredToast();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,11 +6,11 @@
 <p>@NavigationManager.Uri</p>
 @if (isEdit)
 {
-    <h3>Edit User: @Id</h3>
+<h3>Edit User: @Id</h3>
 }
 else
 {
-    <h3>New User</h3>
+<h3>New User</h3>
 
 }
 
@@ -24,7 +24,7 @@ else
         <option value="0">--Select a Status--</option>
         @foreach (var status in userDataService.GetStatusTypes())
         {
-            <option value="@status">@status</option>
+        <option value="@status">@status</option>
         }
     </InputSelect>
     <button type="submit">Save</button>
@@ -71,6 +71,6 @@ else
 
     private async void HandleValidSubmit()
     {
-        
+
     }
 }

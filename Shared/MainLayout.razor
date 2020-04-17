@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject JsUsers.Services.UserDataService userDataService
+@inject IToastService toastService
+@using Blazored.Toast.Configuration
 
 <div class="sidebar">
     <NavMenu />
@@ -15,9 +17,27 @@
     </div>
 </div>
 
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="2"
+                SuccessClass="success-toast-override"
+                SuccessIconClass="fa fa-thumbs-up"
+                ErrorIconClass="fa fa-bug" />
+
 @code{
+
     private async Task LoadData()
     {
-        await userDataService.SaveFromHttpRequestAsync();
+        toastService.ShowInfo("Data loading started 'http://js-assessment-backend.herokuapp.com'");
+
+        JsUsers.Models.ResponseModel result = await userDataService.SaveFromHttpRequestAsync();
+
+        if (!result.IsError)
+        {
+            toastService.ShowSuccess(result.Message);
+        }
+        else if (result.IsError)
+        {
+            toastService.ShowError(result.Message);
+        }
     }
 }
