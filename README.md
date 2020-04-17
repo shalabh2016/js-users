@@ -6,6 +6,7 @@
 - .Net Installation and Docs are available on: https://dotnet.microsoft.com/download
 - SqLite is used.
 - `dotnet run` is used to  run the project, and `dotnet restore` must be run if run for the first time.
+- This repo also includes a `jsusers.db` which includes a Sqlite DB contains records from api call `/users.json` and addition of some new data also. You may delete and then you must run `dotnet tool install --global dotnet-ef` then `dotnet ef database update UserModelMigration`.
 
 ## Instructions
 
