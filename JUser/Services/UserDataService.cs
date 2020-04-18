@@ -134,20 +134,25 @@ namespace JsUsers.Services
         /// <returns>Response -> List of UserModel data.</returns>
         public async Task<List<UserModel>> GetAsync(int? PageNumber, int? PerPage)
         {
-            //Getting user with pagination.
-            var users = await PaginationHelper<UserModel>.CreateAsync(
-                   _applicationDbContext.UserModels
-                   .AsQueryable()
-                   .AsNoTracking(),
-                   PageNumber ?? 1,
-                   PerPage ?? 10
-                  );
-            if (users == null || users.Count == 0)
+            try
             {
-                return new List<UserModel>();
+                //Getting user with pagination.
+                var users = await PaginationHelper<UserModel>.CreateAsync(
+                       _applicationDbContext.UserModels
+                       .AsQueryable()
+                       .AsNoTracking(),
+                       PageNumber ?? 1,
+                       PerPage ?? 10
+                      );
+                if (users.Count == 0)
+                {
+                    return new List<UserModel>();
+                }
+                return users;
+            }catch(Exception e)
+            {
+                return null; 
             }
-
-            return users;
 
         }
 

@@ -12,6 +12,9 @@
 </div>
 
 <hr />
+
+@if (!IsUserDataNull)
+{
 <table class="table text-center justify-content-center">
     <thead>
         <tr class="">
@@ -32,17 +35,22 @@
                 <td>@((MarkupString)GetElemForLocked(user, user.FirstName))</td>
                 <td>@((MarkupString)GetElemForLocked(user, user.LastName))</td>
                 <td>@user.CreatedAt</td>
-                <td style="text-align: center" class=@((user.Status.ToLower() == "locked")? "table-danger":"table-success")>@user.Status</td>
+                <td style="text-align: center" class=@((user.Status.ToLower() == "locked") ? "table-danger" : "table-success")>@user.Status</td>
                 <td style="text-align: center">
-                    <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(!LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-toggle="tooltip" data-placement="top" title="Click to Change"><i class="fa fa-check" style=@((user.Status.ToLower() == "locked")? "color: grey" : "color: green") aria-hidden="true"></i></button>
-                    | <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-placement="top" title="Clck to Change."><i class="fa fa-lock" style=@((user.Status.ToLower() == "locked")? "color: red" : "color: grey") aria-hidden="true"></i></button>
+                    <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(!LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-toggle="tooltip" data-placement="top" title="Click to Change"><i class="fa fa-check" style=@((user.Status.ToLower() == "locked") ? "color: grey" : "color: green") aria-hidden="true"></i></button>
+                    | <button type="button" @onclick="@(() => ChangeStatus(user.Id))" disabled="@(LockedOrActive(user.Status))" @onclick:preventDefault class="p-1 btn btn-link" data-placement="top" title="Clck to Change."><i class="fa fa-lock" style=@((user.Status.ToLower() == "locked") ? "color: red" : "color: grey") aria-hidden="true"></i></button>
                 </td>
                 <td><button type="button" class="btn btn-outline-secondary" @onclick="@(() => GoTo(user.Id, _paginationRef.CurrentPageNo))">Edit</button></td>
             </tr>
         }
     </tbody>
 </table>
-
+}else if (IsUserDataNull)
+{
+    <div class="row col">
+        <h5>@UserDataIsNullMessage</h5>
+    </div>
+}
 
 
 @code{
@@ -50,6 +58,9 @@
     //This enables back button in Edit page, and opens page to same table data and page.
     [Parameter]
     public int PN { get; set; }
+
+    private string UserDataIsNullMessage { get; set; } = "";
+    private bool IsUserDataNull { get; set; } = false;
 
     //This tracks is navigated back from Edit page.
     public bool IsNavigatedBack { get; set; } = false;
@@ -143,12 +154,20 @@
     //Load data from UserDataService with Paginated Result.
     private async Task GetData(int? PageNumber, int? PerPage)
     {
+        IsUserDataNull = false;
         UserList = await _userDataService.GetAsync(PageNumber ?? 1, PerPage ?? 10);
-        if (UserList == null || UserList.Count == 0)
+        
+        if (UserList == null)
+        {
+            IsUserDataNull = true;
+            UserDataIsNullMessage = "There is no data in the database. Please click on load-data or run migrations first as stated in Readme file.";
+        }
+        else if (UserList.Count == 0)
         {
             IsNextAvailable = false;
             _paginationRef.ToPageNumberFromParent((int)((PageNumber > 1) ? PageNumber - 1 : 1));
         }
+
         StateHasChanged();
     }
 
