@@ -79,7 +79,7 @@ namespace JsUsers.Services
                     };
                 }
 
-                return new ResponseModel { IsError = false, Message = "Data load complete from 'http://js-assessment-backend.herokuapp.com'" };
+                return new ResponseModel { IsError = false, Message = "Data load complete from 'http://js-assessment-backend.herokuapp.com'. Reload the page to see updates." };
             }
             catch (Exception e)
             {
@@ -144,10 +144,6 @@ namespace JsUsers.Services
                        PageNumber ?? 1,
                        PerPage ?? 10
                       );
-                if (users.Count == 0)
-                {
-                    return new List<UserModel>();
-                }
                 return users;
             }catch(Exception e)
             {
